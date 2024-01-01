@@ -19,24 +19,38 @@ for file in files:
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # Apply masks
-    mask_red = cv2.inRange(hsv, np.array([0, 100, 100]), np.array([20, 255, 255]))
-    mask_green = cv2.inRange(hsv, np.array([20, 50, 50]), np.array([120, 255, 255]))
+    #mask_red = cv2.inRange(hsv, np.array([0, 100, 100]), np.array([20, 255, 255]))
+    #mask_green = cv2.inRange(hsv, np.array([20, 50, 50]), np.array([120, 255, 255]))
 
     mask_red_refined = cv2.inRange(hsv_refined, np.array([0, 100, 100]), np.array([20, 255, 255]))
+    mask_red2_refined = cv2.inRange(hsv_refined, np.array([160, 100, 100]), np.array([180, 255, 255]))
+
     mask_green_refined = cv2.inRange(hsv_refined, np.array([20, 50, 50]), np.array([120, 255, 255]))
+    #mask_green_refined = cv2.inRange(hsv_refined, np.array([25, 60, 60]), np.array([120, 255, 255]))
+    mask_green2_refined = cv2.inRange(hsv_refined, np.array([20, 30, 30]), np.array([40, 255, 255]))
 
+    # Combine masks
+    red_mask = cv2.bitwise_or(mask_red_refined, mask_red2_refined)
+    green_mask = cv2.bitwise_or(mask_green_refined, mask_green2_refined)
 
+    # Outputs
+    #output_red = cv2.bitwise_and(img, img, mask=mask_red)
+    #output_green = cv2.bitwise_and(img, img, mask=mask_green)
     output_red_refined = cv2.bitwise_and(img_refined, img_refined, mask=mask_red_refined)
+    red_refined = cv2.bitwise_and(img_refined, img_refined, mask=red_mask)
+
     output_green_refined = cv2.bitwise_and(img_refined, img_refined, mask=mask_green_refined)
-    output_red = cv2.bitwise_and(img, img, mask=mask_red)
-    output_green = cv2.bitwise_and(img, img, mask=mask_green)
+    output_green2_refined = cv2.bitwise_and(img_refined, img_refined, mask=mask_green2_refined)
+    green_refined = cv2.bitwise_and(img_refined, img_refined, mask= green_mask)
+    
 
     # Show images
-    combined_refined = np.hstack((output_red_refined, output_green_refined))
-    combined = np.hstack((output_red, output_green))
+    #combined_refined = np.hstack((img, red_refined, green_refined ))
+    combined_refined = np.hstack((img, output_green_refined, green_refined ))
+    #combined = np.hstack((output_red, output_green))
 
-    cv2.imshow(f'{file}', combined)
-    cv2.waitKey(0)
+    #cv2.imshow(f'{file}', combined)
+    #cv2.waitKey(0)
     cv2.imshow(f'{file}', combined_refined)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
