@@ -15,20 +15,29 @@ for file in files:
     img_refined = cv2.morphologyEx(img_refined, cv2.MORPH_CLOSE, kernel)
 
     # Convert the image to HSV
-    hsv = cv2.cvtColor(img_refined, cv2.COLOR_BGR2HSV)
+    hsv_refined = cv2.cvtColor(img_refined, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # Apply masks
     mask_red = cv2.inRange(hsv, np.array([0, 100, 100]), np.array([20, 255, 255]))
     mask_green = cv2.inRange(hsv, np.array([20, 50, 50]), np.array([120, 255, 255]))
 
+    mask_red_refined = cv2.inRange(hsv_refined, np.array([0, 100, 100]), np.array([20, 255, 255]))
+    mask_green_refined = cv2.inRange(hsv_refined, np.array([20, 50, 50]), np.array([120, 255, 255]))
 
-    output_red = cv2.bitwise_and(img_refined, img_refined, mask=mask_red)
-    output_green = cv2.bitwise_and(img_refined, img_refined, mask=mask_green)
+
+    output_red_refined = cv2.bitwise_and(img_refined, img_refined, mask=mask_red_refined)
+    output_green_refined = cv2.bitwise_and(img_refined, img_refined, mask=mask_green_refined)
+    output_red = cv2.bitwise_and(img, img, mask=mask_red)
+    output_green = cv2.bitwise_and(img, img, mask=mask_green)
 
     # Show images
-    combined = np.hstack((img, output_red, output_green))
+    combined_refined = np.hstack((output_red_refined, output_green_refined))
+    combined = np.hstack((output_red, output_green))
 
     cv2.imshow(f'{file}', combined)
+    cv2.waitKey(0)
+    cv2.imshow(f'{file}', combined_refined)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
