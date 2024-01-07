@@ -203,6 +203,8 @@ After detecting the circle where the Ishihara plate lies on, I needed to resize 
 ### Actual Functionality
 The module functions as intended. Chat GPT calculated the position for embedding the resized binary image to center it within the circle.
 
+# Critiques of the use of Chat GPT
+Using Chat GPT for this project has helped in a lot of ways such as providing efficient coding assistance and solutions but there are many criticisms of its usage. Firstly, there is a concern about relying too much on AI, which may lead to a diminution of analytical skills and creativity (Smith, A., & Anderson, M. (2014). AI, Robotics, and the Future of Jobs. Pew Research Center). Even though ChatGPT has definitely helped improve the project, we need to remind ourselves that we should use AI with moderation.
 
 
 
