@@ -45,14 +45,8 @@ def match_plates(frame, plate_images):
             best_image = plate_img
             best_idx = idx  # Update the best index
 
-    return best_image, best_matches, best_idx  # Return the best index
+    return best_image, best_matches, best_idx 
 
-# Extracts detected circle
-def extract_circle_roi(frame_gray, circle):
-    x, y, r = circle[0], circle[1], circle[2]
-    y1, y2 = max(0, y - r), min(frame_gray.shape[0], y + r)
-    x1, x2 = max(0, x - r), min(frame_gray.shape[1], x + r)
-    return frame_gray[y1:y2, x1:x2]
 
 # ID of the camera
 cam = cv2.VideoCapture(0)
@@ -68,12 +62,10 @@ while(True):
             i = list(map(int, i))
             #cv2.circle(frame,(i[0],i[1]),i[2]+20,(0,255,0),2)
 
-
-            circle_roi = extract_circle_roi(gray, i)
             matched_image, matches, matched_idx = match_plates(gray, plate_images)
 
             if matched_image is not None and len(matches) > 1 and matched_idx is not None:
-                binary_img_to_superimpose = binary_images[matched_idx]
+                superimpose_binary = binary_images[matched_idx]
                 binary_path = binary_file[matched_idx]
                 # Extract keypoint coordinates
                 frame_keypoints, _ = detect_and_describe(gray)
@@ -85,20 +77,18 @@ while(True):
                 # Find homography and superimpose
                 M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
                 height, width = frame.shape[:2]
-                output = cv2.warpPerspective(binary_img_to_superimpose, M, (width, height))
+                output = cv2.warpPerspective(superimpose_binary, M, (width, height))
                 output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
             
 
                 # Create a mask from the circle
                 mask = np.zeros(gray.shape[:2], dtype=np.uint8)
                 cv2.circle(mask, (i[0], i[1]), i[2]+ 20, 255, -1)
-                # Convert mask to 3 channels
-                mask_3_channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+                mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
                 # Resize the binary image
-                resized_binary = cv2.resize(binary_img_to_superimpose, (mask.shape[1]//2, mask.shape[0]//2))
+                resized_binary = cv2.resize(superimpose_binary, (mask.shape[1]//2, mask.shape[0]//2))
 
-                # Convert the binary image to 3 channels if it's not
                 if len(resized_binary.shape) == 2:
                     resized_binary = cv2.cvtColor(resized_binary, cv2.COLOR_GRAY2BGR)
 
@@ -106,17 +96,17 @@ while(True):
                 y_offset = i[1] - resized_binary.shape[0] // 2
                 x_offset = i[0] - resized_binary.shape[1] // 2
 
-                y_offset = max(0, min(y_offset, mask_3_channel.shape[0] - resized_binary.shape[0]))
-                x_offset = max(0, min(x_offset, mask_3_channel.shape[1] - resized_binary.shape[1]))
+                y_offset = max(0, min(y_offset, mask.shape[0] - resized_binary.shape[0]))
+                x_offset = max(0, min(x_offset, mask.shape[1] - resized_binary.shape[1]))
 
                 # Place the resized binary image onto the mask
-                mask_3_channel[y_offset:y_offset+resized_binary.shape[0], x_offset:x_offset+resized_binary.shape[1]] = resized_binary
+                mask[y_offset:y_offset+resized_binary.shape[0], x_offset:x_offset+resized_binary.shape[1]] = resized_binary
 
                 # Superimpose the binary image onto the circle
-                masked_frame = cv2.bitwise_and(frame, 255 - mask_3_channel)
-                superimposed_image = cv2.add(masked_frame, mask_3_channel)
+                masked_frame = cv2.bitwise_and(frame, 255 - mask)
+                superimposed_image = cv2.add(masked_frame, mask)
 
-                text_position = (i[0] + i[2] + 100, i[1] + 200)  # Position next to the circle
+                text_position = (i[0] + i[2] + 100, i[1] + 200)
                 number = binary_path.split("_")[-1].split(".")[0]
                 superimposed_image = cv2.putText(superimposed_image, f'Number {number}', text_position, 4, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
 
