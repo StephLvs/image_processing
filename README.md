@@ -66,7 +66,8 @@ In this section, Chat GPT helped with the matching of the image of the plate to 
 
 ## Chat GPT prompt: Matching and superimpostion
 ```
-The plates during the live video should be matched to one of the still image of the plate. We have to superimpose each still image on the frame to determine which plate and number it corresponds to.
+The plates during the live video should be matched to one of the still image of the plate.
+We have to superimpose each still image on the frame to determine which plate and number it corresponds to.
 ```
 ### Expected Functionality
 Give an idea of the functions to use to match an image to a live video frame and how to implement a superimposition.
