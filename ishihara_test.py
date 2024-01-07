@@ -2,13 +2,16 @@ import cv2
 import os
 import numpy as np
 
-folder_path = 'plates'
-files= os.listdir(folder_path)
-kernel = np.ones((15,15), np.uint8)
+plates_folder = 'plates'
+binary_folder = 'binary_plates'
+
+files= os.listdir(plates_folder)
+kernel = np.ones((12,12), np.uint8)
+image_dict = {}
 
 for file in files:
     # Read the image in colour (RGB)
-    plate_img = os.path.join(folder_path, file)
+    plate_img = os.path.join(plates_folder, file)
     img = cv2.imread(plate_img, 1)
 
     img_refined = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
@@ -40,6 +43,26 @@ for file in files:
     binary_red = cv2.cvtColor(red_mask, cv2.COLOR_GRAY2BGR)
     binary_green = cv2.cvtColor(green_mask, cv2.COLOR_GRAY2BGR)
 
+
+    # Calculate white area in both binary images
+    white_area_red = np.sum(binary_red == 255)
+    white_area_green = np.sum(binary_green == 255)
+
+    # Save only the binary image with less white area
+    if white_area_red < white_area_green:
+        chosen_binary_img = binary_red
+    else:
+        chosen_binary_img = binary_green
+
+    # Save the chosen binary image
+    binary_img = os.path.join(binary_folder, file)
+    #chosen_binary_img = 255 - chosen_binary_img
+    cv2.imwrite(binary_img, chosen_binary_img)
+
+    # Update dictionary
+    image_dict[plate_img] = binary_img
+
+
     # Show images
     combined_refined = np.hstack((img, binary_red, binary_green))
 
@@ -47,3 +70,4 @@ for file in files:
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+print(image_dict)

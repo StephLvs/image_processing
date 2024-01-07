@@ -2,18 +2,20 @@ import numpy as np
 import cv2
 import os
 
-folder_path = 'plates'
+plates_folder = 'plates'
 binary_folder = 'binary_plates'
-files = os.listdir(folder_path)
+files = os.listdir(plates_folder)
 
 plate_images = []
 binary_images = []
+binary_file = []
 for f in files:
-    plate_img = cv2.imread(os.path.join(folder_path, f), 0)
+    plate_img = cv2.imread(os.path.join(plates_folder, f), 0)
     binary_img = cv2.imread(os.path.join(binary_folder, f), 0)
     if plate_img is not None and binary_img is not None:
         plate_images.append(plate_img)
         binary_images.append(binary_img)
+        binary_file.append(f)
 
 # ORB detector
 orb = cv2.ORB_create()
@@ -69,8 +71,10 @@ while(True):
 
             circle_roi = extract_circle_roi(gray, i)
             matched_image, matches, matched_idx = match_plates(gray, plate_images)
+
             if matched_image is not None and len(matches) > 1 and matched_idx is not None:
                 binary_img_to_superimpose = binary_images[matched_idx]
+                binary_path = binary_file[matched_idx]
                 # Extract keypoint coordinates
                 frame_keypoints, _ = detect_and_describe(gray)
                 plate_keypoints, _ = detect_and_describe(matched_image)
@@ -102,7 +106,6 @@ while(True):
                 y_offset = i[1] - resized_binary.shape[0] // 2
                 x_offset = i[0] - resized_binary.shape[1] // 2
 
-                # Ensure the offsets are within the mask boundaries
                 y_offset = max(0, min(y_offset, mask_3_channel.shape[0] - resized_binary.shape[0]))
                 x_offset = max(0, min(x_offset, mask_3_channel.shape[1] - resized_binary.shape[1]))
 
@@ -112,6 +115,10 @@ while(True):
                 # Superimpose the binary image onto the circle
                 masked_frame = cv2.bitwise_and(frame, 255 - mask_3_channel)
                 superimposed_image = cv2.add(masked_frame, mask_3_channel)
+
+                text_position = (i[0] + i[2] + 100, i[1] + 200)  # Position next to the circle
+                number = binary_path.split("_")[-1].split(".")[0]
+                superimposed_image = cv2.putText(superimposed_image, f'Number {number}', text_position, 4, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
 
                 combine = np.hstack((frame, superimposed_image))
                 cv2.imshow('Cheat Ishihara Test', combine)  
