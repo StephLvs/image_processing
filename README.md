@@ -30,6 +30,7 @@ I expected the masks to be applied on each plate and to view it one by one.
 The module functions as intended. Thanks to this module, I can see if the range of the masks correponds to the different hues of the Ishihara plates and adjust it if needed.
 
 # Black and white
+In this section, after having applied the red/ green colours masks to highlight the number. Chat GPT helped keep a copy of the binary version of the results.  
 
 ## Chat GPT prompt: Save the correct binary images to a folder
 ```
@@ -61,8 +62,9 @@ binary_img_path = os.path.join(binary_folder, file)
 cv2.imwrite(binary_img_path, chosen_binary_img)
 ```
 # Live video
+In this section, Chat GPT helped with the matching of the image of the plate to the actual image during a live feed. It then helped to superimpose the matched image onto the actual image.
 
-## Chat GPT prompt
+## Chat GPT prompt: Matching and superimpostion
 ```
 The plates during the live video should be matched to one of the still image of the plate. We have to superimpose each still image on the frame to determine which plate and number it corresponds to.
 ```
@@ -128,7 +130,7 @@ cv2.destroyAllWindows()
 cam.release()
 ```
 
-## Chat GPT prompt
+## Chat GPT prompt: Resizing of binary image onto the actual image during the live feed
 ```
 How to overlay the resized binary image (which is smaller than the mask) into the middle of the mask.
 ```
@@ -193,7 +195,13 @@ while(True):
 
 
 cv2.destroyAllWindows()
-cam.release() how to overlay the resized binary image (which is smaller than the mask) onto the middle of the mask
+cam.release()
 ```
-### Response
 ### Expected Functionality
+After detecting the circle where the Ishihara plate lies on, I needed to resize the binary image to fit into the circle.
+### Actual Functionality
+The module functions as intended. Chat GPT calculated the position for embedding the resized binary image to center it within the circle.
+
+
+
+
